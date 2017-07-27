@@ -1,0 +1,915 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Stata Conference 2017</title>
+
+		<meta name="description" content="Intro to Item Response Theory using Open Source Solutions">
+		<meta name="author" content="William R. Buchanan">
+		<meta name="institution" content="Fayette County Public Schools">
+		<meta name="title" content="Director of Data, Research, and Accountability">
+		<meta name="location" content="701 East Main Street, Lexington, KY 40502">
+		<meta name="contact" content="Billy.Buchanan@fayette.kyschools.us">
+
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/solarized.css" id="theme">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+        <script src="https://code.jquery.com/jquery-2.2.4.min.js"   integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="   crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+
+		<script>
+			imgselect = function() {
+				var imgsel = d3.select("select#imgselector").property("value");
+				d3.select("img#image").attr("src", imgsel);
+			};
+		</script>
+
+	</head>
+
+	<body>
+
+
+
+
+
+
+
+	<div class="reveal" style="width: 100%; height: 100%;">
+
+
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides" style="width: 95vw; height: 85vw;">
+
+
+				<section>
+					<h2>Stata extensibility with the Java API</h2>
+					<h3>Tools, examples, and advice</h3>
+					<p>
+						<small><a href="https://github.com/wbuchanan">Billy Buchanan, Ph.D.</a> </br>
+							<a href="http://www.fcps.net/administration/departments/data">Director, Office of Data, Research, and Accountability</a></br>
+							<a href="https://scorecard.fcps.net/">Fayette County Public Schools</a></br>
+						</small>
+					</p>
+					<div style="font-size:48px; font-weight:bold"><a href="https://wbuchanan.github.io/stataConference2017">https://wbuchanan.github.io/stataConference2017</a></div>
+					<aside class="notes">
+						<small>This is just a test note to configure presenter mode.</small>
+					</aside>
+				</section>
+
+				<section>
+					<div>
+						<ul>
+							<li>Developing Plugins with the Java API</li>
+							<li>Extending Native Stata Functionality</li>
+							<li>Adding Functionality to Stata</li>
+							<li>Future Directions/Opportunities</li>
+						</ul>
+					</div>
+				</section>
+
+				<!-- Example of nested vertical slides -->
+				<section>
+					<h2>Developing Plugins with the Java API</h2>
+					<section>
+						<h3>Why Java?</h3>
+						<div>
+							<ul>
+								<li>Can provide performance gains similar to other compiled languages.</li>
+								<li>Java is used in quite literally anything that could possibly have a CPU.</li>
+								<li>The Java ecosystem is rich in data analysis and processing tools.</li>
+								<li>Can develop tools that work with Stata as well as independent of Stata.</li>
+							</ul>
+						</div>
+						<aside class="notes">
+							<ul>
+								<li>Lots of big data technologies are built on technologies running in the JVM</li>
+								<li>While Mata is a compiled language, it seems to be more similar to a DSL that compiles through C</li>
+								<li>Java started by solving a problem with different languages for consumer hardware like VCRs and Microwaves</li>
+								<li></li>
+								<li></li>
+								<li></li>
+							</ul>
+						</aside>
+					</section>
+					<section>
+						<h3>Tools for working with the Java API</h3>
+						<div>
+							<ul>
+								<li><a href="https://github.com/wbuchanan/StataJavaUtilities" target="_blank">Stata Java Utilities</a>
+									<ul>
+										<li>Provides consistent interface across Stata 13/14 Java APIs</li>
+										<li>Creates representations of the dataset, metadata, and includes other utilities for handling missing values consistently</li>
+										<li>Aim is to make it easier for others to develop plugins by using higher level abstractions for the interfaces</li>
+										<li><a href="http://wbuchanan.github.io/StataJavaUtilities/" target="_blank">JavaDocs are publicly available</a></li>
+									</ul>
+								</li>
+							</ul>
+						</div>
+						<aside class="notes">
+							<ul>
+								<li></li>
+								<li></li>
+								<li></li>
+							</ul>
+						</aside>
+					</section>
+					<section>
+						<pre style="width: 70vw;">
+<code data-trim data-noescape style="width: 97%;">
+// Create a Meta Data object to access variables, observations, and other metadata
+Meta metaDataObject = new Meta();
+
+// Create a DataSet object to represent all of the data available in memory
+DataSet myData = new DataSet(metaDataObject);
+
+// Access Variable Names in an iterable object
+List&lt;String&gt; variableNames = metaDataObject.getVarNames();
+
+// Can access starting, ending, and number of observation indices as well
+Number startingObservation = metaDataObject.getStataobs().getSobs().longValue();
+Number endingObservation = metaDataObject.getStataobs().getEobs().longValue();
+Number totalObservations = metaDataObject.getStataobs().getNobs().longValue();
+
+// Can also access version specific observation indices
+List&lt;Integer&gt; version13Obs = metaDataObject.getObs13();
+List&lt;Long&gt; version14Obs = metaDataObject.getObs14();
+
+// Value label names are also associated with variable names
+Map&lt;String, String&gt; valueLabelNames = metaDataObject.getValueLabelNames();
+
+// Variable Labels are associate with variable names
+Map&lt;String, String&gt; variableLabels = metaDataObject.getVariableLabels();
+
+// Class StataMissings provides methods to test for extended missing values and to map
+// extended missing values correctly; Methods are overloaded to handle different types
+// being passed to them
+StataMissings.isExtendedMissing(value);
+
+// Also includes Classes/Methods to provide convenience wrappers to generate iterable
+// items from arguments and/or macro values
+List&lt;String&gt; arguments = StringArgsToCollector.argsToCollector(String[] args);
+
+
+</code>
+						</pre>
+						<aside class="notes">
+							<ul>
+								<li>Everything begins with the Meta object.</li>
+								<li>The meta object gets injected into all the data classes to construct them with limited user interaction.</li>
+								<li>Library includes lots of convenience methods that return objects that provide better iteration methods.</li>
+								<li>Library also handles the observation and variable indexing consistently to avoid some of the catches with 0 vs 1 based indexing.</li>
+								<li>In the future will include methods to transform records/datasets to arrays of arrays.</li>
+								<li>Wait till end to talk about abstract factory method</li>
+							</ul>
+						</aside>
+					</section>
+					<section>
+						<h3>Tools for creating new projects</h3>
+						<div>
+							<ul>
+								<li><a href="https://github.com/wbuchanan/StataArchetype" target="_blank">Stata Maven Archetype</a>
+									<ul>
+										<li>Maven is a Java Software Development Life Cycle tool.</li>
+										<li>Maven Archetypes are essentially templates to automate boilerplate when starting a project.</li>
+										<li>Stata Maven Archetype handles the Java and Stata side of things for you.</li>
+										<li>Maven archetype available in the <a href="https://oss.sonatype.org/service/local/staging/deploy/maven2/org/paces-consulting/stata-archetype/1.0.0/stata-archetype-1.0.0.jar" target="_blank">Sonatype Maven Archive</a></li>
+									</ul>
+								</li>
+							</ul>
+						</div>
+						<aside class="notes">
+							<ul>
+								<li>Can think of Archetypes like a project if projects generated all of the boiler plate code for you.</li>
+								<li></li>
+								<li></li>
+								<li></li>
+							</ul>
+						</aside>
+					</section>
+					<section>
+						<pre style="width: 70vw;">
+<code data-noescape data-trim style="width: 97%;">
+/* Initial set up only required once */
+
+// Locate the Stata Java API library
+qui: findfile libstata-plugin.jar
+
+// Assuming maven is already on your path
+! mvn install:install-file -Dfile="`r(fn)'" -DgroupId=com.stata -DartifactId=sfi 	///
+	-Dversion=`= int(`c(stata_version)')' -Dpackaging=jar
+
+// Install the archetype command
+net inst archetype, from(http://wbuchanan.github.io/stataArchetype)
+
+// Then you can template the .ado, .sthlp, and Java directory
+// structure with a "single" line of code
+archetype , gr(org.paces-consulting) art(myStataLibrary) ver(0.0.1-SNAPSHOT) ///
+mainc(ArchtypeClass) javacallm(callingMethod) buildd(~/conferenceExample) ///
+pack(org.paces.stata.myArchetypeLibrary)
+
+</code>
+						</pre>
+					</section>
+					<aside class="notes">
+						<ul>
+							<li>Archetypes make spinning things up extremely fast since it handles the boilerplate for you</li>
+							<li>Since help files/documentation can also be burden some, all options are included in the ado and help file so you only need to cut/paste and delete what you want.</li>
+							<li>Sets up dependency management/Maven pom parameters to make it easier to deploy Java packages to Maven repositories as well</li>
+						</ul>
+					</aside>
+				</section>
+				<section>
+					<h2>Extending Native Stata Functionality</h2>
+					<section>
+						<h2><a href="http://wbuchanan.github.io/StatajMetrik/raschjmle/" target="_blank">Adding Psychometric Tools/Capabilities</a></h2>
+						<div>
+							<ul>
+								<li>Some IRT estimators are not available from native Stata commands, like the Joint Maximum Likelihood Estimator.</li>
+								<li>Already exists in open-source Java-based psychometrics program <a href="http://www.itemanalysis.com" target="_blank">jMetrik</a>.</li>
+								<li>Also provides additional fit statistics typically used in Rasch measurement (e.g., infit/outfit).</li>
+								<li>Accessible from <a href="https://wbuchanan.github.io/StatajMetrik" target="_blank">the project repository</a></li>
+							</ul>
+						</div>
+						<aside class="notes">
+							<ul>
+								<li>This estimator - in particular - is important for calibration studies when both the person parameter theta and the item difficulty beta are unknown.</li>
+								<li>Used a very primitive method to adapt to the Stata 13 and Stata 14 API libraries</li>
+								<li></li>
+								<li></li>
+							</ul>
+						</aside>
+					</section>
+					<section>
+<pre style="width: 70vw;">
+	<code data-noescape data-trim style="width: 97%">
+// Install development version
+net inst raschjmle, from(http://wbuchanan.github.io/StatajMetrik)
+
+// Load example data set used in IRT manuals
+webuse masc1.dta, clear
+
+// Fit the model, print the results to the screen and add person parameters to
+// the current data set in memory
+. raschjmle q1-q9
+
+=================================================================================================
+Item           Difficulty     Std. Error        WMS       Std. WMS        UMS       Std. UMS
+-------------------------------------------------------------------------------------------------
+q1                  -0.40           0.08         0.85        -4.32         0.84        -2.86
+q2                   0.11           0.08         1.03         1.04         1.05         1.04
+q3                  -1.36           0.10         0.93        -1.39         0.86        -1.39
+q4                   0.49           0.08         0.99        -0.25         1.02         0.38
+q5                   1.66           0.09         0.93        -1.54         1.02         0.28
+q6                   0.82           0.08         0.93        -2.05         0.95        -0.82
+q7                   1.37           0.09         1.10         2.42         1.17         1.99
+q8                  -1.87           0.11         0.77        -3.81         0.85        -1.14
+q9                  -0.81           0.09         1.04         1.04         1.13         1.66
+=================================================================================================
+
+SCALE QUALITY STATISTICS
+==================================================
+Statistic                  Items     Persons
+--------------------------------------------------
+Observed Variance         1.3031      1.4411
+Observed Std. Dev.        1.1415      1.2005
+Mean Square Error         0.0080      0.7097
+Root MSE                  0.0894      0.8425
+Adjusted Variance         1.2951      0.7314
+Adjusted Std. Dev.        1.1380      0.8552
+Separation Index         12.7235      1.0151
+Number of Strata         17.2980      1.6868
+Reliability               0.9939      0.5075
+==================================================
+
+            SCORE TABLE
+==================================
+  Score        Theta      Std. Err
+----------------------------------
+    0.00        -3.94         1.89
+    1.00        -2.55         1.12
+    2.00        -1.59         0.89
+    3.00        -0.89         0.80
+    4.00        -0.28         0.77
+    5.00         0.31         0.76
+    6.00         0.91         0.79
+    7.00         1.59         0.87
+    8.00         2.53         1.11
+    9.00         3.89         1.89
+==================================
+	</code>
+</pre>
+					</section>
+					<section>
+						<h2><a href="http://wbuchanan.github.io/StataStringUtilities/about/" target="_blank">More than just soundex</a></h2>
+						<div>
+							<ul>
+								<li><a href="https://github.com/wbuchanan/StataStringUtilities" target="_blank">Stata String Utilities</a> and <a href="https://github.com/wbuchanan/StataRegex" target="_blank">Stata Regex</a> provide additional string processing capabilities using existing Java libraries.</li>
+								<li><a href="https://github.com/wbuchanan/StataStringUtilities" target="_blank">Stata String Utilities</a> uses Apache Commons Codec library for additional phonetic encoding algorithm support as well as <a href="https://github.com/tdebatty/java-string-similarity" target="_blank">Thibeault Debatty's string distance library</a> for multiple string distance algorithms</li>
+								<li><a href="https://github.com/wbuchanan/StataRegex" target="_blank">Stata Regex</a> provides some of the unicode regular expression capabilities to Stata 13 users</li>
+							</ul>
+						</div>
+						<aside class="notes">
+							<ul>
+								<li>The regular expression library also provides tools to operate over multiple variables simultaneously.</li>
+								<li></li>
+								<li></li>
+								<li></li>
+							</ul>
+						</aside>
+					</section>
+					<section>
+<pre style="width: 70vw;">
+	<code data-trim data-noescape style="width: 97%;">
+// Load example library
+sysuse auto.dta, clear
+
+// Phonetically encode the make of the cars
+phoneticenc make, caverphone1(cav1) caverphone2(cav2) col(kolner) dms(daitch) dblm(dblmeta) ///
+		metap(metaphone) nys(nysiis) beiderm(bmencode) matchrating(mrating)
+
+// List the first 5 results for several of the encodings
+li make cav1 cav2 kolner daitch in 1/5
+
+     +---------------------------------------------------------------------------------+
+     | make              cav1         cav2                             kolner   daitch |
+     |---------------------------------------------------------------------------------|
+  1. | AMC Concord     AMKNKT   AMKNKTNNNN   06846472656565656565656565656565   064649 |
+  2. | AMC Pacer       AMKPSN   AMKPSNNNNN     068187656565656565656565656565   064749 |
+  3. | AMC Spirit      AMKSPR   AMKSPRTNNN    0688172656565656565656565656565   064793 |
+  4. | Buick Century   PKSNTR   PKSNTRNNNN     148627656565656565656565656565   754639 |
+  5. | Buick Electra   PKLKTR   PKLKTRNNNN     145827656565656565656565656565   758439 |
+     +---------------------------------------------------------------------------------+
+
+// This shows a few other encodings
+li make dblmeta metaphone nysiis mrating in 1/5
+
+     +-------------------------------------------------------+
+     | make            dblmeta   metaph~e   nysiis   mrating |
+     |-------------------------------------------------------|
+  1. | AMC Concord        AMKN       AMKK   ANCANC    AMCLNL |
+  2. | AMC Pacer          AMKP       AMKP   ANCPAC    AMCLNL |
+  3. | AMC Spirit         AMKS       AMKS   ANCSPA    AMCLNL |
+  4. | Buick Century      PKSN       BKSN   BACANT    BCKLNL |
+  5. | Buick Electra      PKLK       BKLK   BACALA    BCKLNL |
+     +-------------------------------------------------------+
+	</code>
+</pre>
+					</section>
+					<section>
+						<h2><a href="https://wbuchanan.github.io/StataFileSystem/about/" target="_blank">Finer Grained Access to the File System</a></h2>
+						<div>
+							<ul>
+								<li>Can identify file and file system properties.</li>
+								<li>Can be used to identify file modification dates as a way to automatically update programs for users.</li>
+								<li>Can also set file system permissions to allow users to modify, read, and/or execute files.</li>
+							</ul>
+						</div>
+						<aside class="notes">
+							<ul>
+								<li>StataFileSys is used in brewscheme to check/test when the mata libraries were most recently modified so they can be recompiled if needed</li>
+								<li>Makes it easier to secure portions of your work to prevent odd file system behavior from causing headaches</li>
+								<li>Can also be used to verify file changes using the file size.</li>
+								<li></li>
+							</ul>
+						</aside>
+					</section>
+					<section>
+<pre style="width: 70vw;">
+	<code data-trim data-noescape style="width: 97%;">
+// Display the file system properties of the auto.dta file
+filesys `c(sysdir_base)'a/auto.dta, attr dis
+
+----------------------------------------------------------------------------------------------------
+    Attribute                File Attribute Value
+----------------------------------------------------------------------------------------------------
+    Created Date             20nov2015 05:44:54
+    Modified Date            20nov2015 05:44:54
+    Last Accessed Date       11dec2015 05:52:23
+    Absolute File Path       /Applications/Stata/ado/base/a/auto.dta
+    Canonical File Path      /Applications/Stata/ado/base/a/auto.dta
+    Parent Path              /Applications/Stata/ado/base/a
+    File Name                auto.dta
+    Is Symbolic Link         false
+    Is Regular File          true
+    Is Executable            false
+    Is Hidden                false
+    Is Readable              true
+    Is Writable              true
+----------------------------------------------------------------------------------------------------
+
+// The properties are returnable so they can be used elsewhere
+ret li
+
+macros:
+         r(iswritable) : "true"
+         r(isreadable) : "true"
+         r(parentpath) : "/Applications/Stata/ado/base/a"
+           r(ishidden) : "false"
+           r(filename) : "auto.dta"
+       r(isexecutable) : "false"
+      r(canonicalpath) : "/Applications/Stata/ado/base/a/auto.dta"
+        r(absoluepath) : "/Applications/Stata/ado/base/a/auto.dta"
+           r(filesize) : "6443"
+        r(regularfile) : "true"
+            r(symlink) : "false"
+        r(accessednum) : "1765432343000"
+        r(modifiednum) : "1763617494000"
+         r(creatednum) : "1763617494000"
+           r(accessed) : "11dec2015 05:52:23"
+           r(modified) : "20nov2015 05:44:54"
+            r(created) : "20nov2015 05:44:54"
+	</code>
+</pre>
+					</section>
+				</section>
+
+				<section>
+					<h2>Adding Functionality to Stata</h2>
+					<section>
+						<h2><a href="https://github.com/wbuchanan/StataEmail" target="_blank">Sending Emails</a></h2>
+						<div>
+							<ul>
+								<li>With <a href="https://github.com/wbuchanan/StataEmail" target="_blank">Stata email</a>, now more of your workflow can be automated.</li>
+								<li>Sometimes you may need to send regular updates on a project and/or results, and now you can create and send the email directly from your Stata workflow.</li>
+								<li>Still working on embedding HTML content in email body more effectively.</li>
+								<li>Can also send multiple attachments if needed</li>
+							</ul>
+						</div>
+						<aside class="notes">
+							<ul>
+								<li>Originally developed as a Stata program that wrote Python code to attach and send files.</li>
+								<li>More robust support since it no longer will send from localhost</li>
+								<li>Once embedded HTML is up and running, could use Stata like a full fledged reporting tool/platform</li>
+								<li>Possible live demo</li>
+							</ul>
+						</aside>
+					</section>
+					<section>
+<pre style="width: 70vw;">
+	<code data-trim data-noescape style="width: 97%;">
+// Run some Stata code (the markdown example for Stata 15)
+dyndoc example/dyndoc_ex.txt, replace
+
+// Now you can send the output as an email along with any other files of interest
+// Can send to multiple recipients by comma delimiting addresses and attach multiple
+// files in the same way
+email, prop(emailtest.props) fr(billy@k12data.ninja) to(billy.buchanan@fayette.kyschools.us) ///
+		subject(another email test with Stata Email) html body(Test body) ///
+		a(pom.xml, dyndoc_ex.html)
+	</code>
+</pre>
+					</section>
+					<section>
+						<div>
+							<img src="media/stataEmail.png" alt="Screen shot of Stata Email plugin test email" width="100%">
+						</div>
+					</section>
+					<section>
+<pre style="width: 70vw;">
+	<code data-trim data-noescape style="width: 97%">
+// There are a lot of potential configuration options.  If you host your own
+// email server it should generally be easier to configure, otherwise reach
+// out to your friendly - or sometimes not so friendly - IT professionals
+// to provide the information you'd need to integrate with your email service
+mail.smtp.user=
+mail.smtp.host=
+mail.smtp.port=
+mail.smtp.connectiontimeout=
+mail.smtp.timeout=
+mail.smtp.from=
+mail.smtp.localhost=
+mail.smtp.localaddress=
+mail.smtp.localport=
+mail.smtp.ehlo=
+mail.smtp.auth=
+mail.smtp.auth.mechanisms=
+mail.smtp.auth.login.disable=
+mail.smtp.auth.plain.disable=
+mail.smtp.auth.digest-md5.disable=
+mail.smtp.auth.ntlm.disable=
+mail.smtp.auth.ntlm.domain=
+mail.smtp.auth.ntlm.flags=
+mail.smtp.submitter=
+mail.smtp.dsn.notify=
+mail.smtp.dsn.ret=
+mail.smtp.sendpartial=
+mail.smtp.sasl.enable=
+mail.smtp.sasl.mechanisms=
+mail.smtp.sasl.authorizationid=
+mail.smtp.sasl.realm=
+mail.smtp.quitwait=
+mail.smtp.reportsuccess=
+mail.smtp.socketFactory=
+mail.smtp.socketFactory.class=
+mail.smtp.socketFactory.fallback=
+mail.smtp.socketFactory.port=
+mail.smtp.ssl.enable=
+mail.smtp.ssl.checkserveridentity=
+mail.smtp.ssl.trust=
+mail.smtp.ssl.socketFactory=
+mail.smtp.ssl.socketFactory.class=
+mail.smtp.ssl.socketFactory.port=
+mail.smtp.ssl.protocols=
+mail.smtp.starttls.enable=
+mail.smtp.starttls.required=
+mail.smtp.socks.host=
+mail.smtp.socks.port=
+mail.smtp.mailextension=
+mail.smtp.userset=
+	</code>
+</pre>
+					</section>
+					<section>
+						<h2><a href="https://wbuchanan.github.io/StataOS/about/" target="_blank">Monitoring System Resources</a></h2>
+						<div>
+							<ul>
+								<li>Based on a <a href="https://www.statalist.org/forums/forum/general-stata-discussion/general/1326359-finding-out-available-memory-in-a-unix-system" target="_blank">StataList query</a> users can now monitor computing resources.</li>
+								<li>Can build workflows that allow control flow to rely on available resources.</li>
+								<li>Can parse and work with OS commands without redirection of stdout to disk, reducing I/O operations</li>
+							</ul>
+						</div>
+						<aside class="notes">
+							<ul>
+								<li></li>
+								<li></li>
+								<li></li>
+								<li></li>
+							</ul>
+						</aside>
+					</section>
+					<section>
+<pre style="width: 70vw;">
+	<code data-trim data-noescape style="width: 97%;">
+// If you only need to monitor basic OS statistics you can use
+// the sysresources command
+sysresources
+
+Total committed memory is : 7.9 GiB
+Free Swap Space is : 0 B
+Total Available Swap Space is : 0 B
+Process CPU Time is : 812383000
+Free Physical Memory Available is : 4.1 GiB
+Total Physical Memory Available is : 16.0 GiB
+System CPU Load is : 0.0
+Process Load is : 0.0
+% Free Physical Memory is : 0
+
+// You could also parse a terminal command
+clicmd vm_stat
+
+// And return the results in local macros for futher use
+ret li
+
+macros:
+       r(Pages_purged) : "1853972"
+  r(Mach_Virtual_Memo
+    ry_Statistics)     : "bytes"
+               r(File) : "202582"
+            r(Swapins) : "0"
+    r(Pages_purgeable) : "284216"
+  r(Pages_occupied_by
+    _compressor)       : "867800"
+  r(Pages_stored_in_c
+    ompressor)         : "1619871"
+       r(Pages_active) : "1340421"
+           r(Pageouts) : "753"
+           r(Swapouts) : "0"
+       r(Compressions) : "7624001"
+  r(Pages_reactivated) : "1366631"
+         r(Pages_copy) : "11097418"
+   r(Pages_wired_down) : "504969"
+            r(Pageins) : "4262570"
+    r(Anonymous_pages) : "1276410"
+     r(Pages_inactive) : "56581"
+  r(Pages_zero_filled) : "119304436"
+         r(Pages_free) : "1340925"
+    r(Pages_throttled) : "0"
+     r(Decompressions) : "4826559"
+  r(Pages_speculative) : "81990"
+                r(raw) : "Mach Virtual Memory Statistics: (page size of 4096 bytes)Pages free:                             1340925.Pages active:                       .."
+           r(clgroups) : "2, 4"
+            r(pgroups) : "2, 4"
+            r(cleaner) : "(^([\w _]{1,}+)(\W{1,}.*)$)"
+             r(parser) : "((.*)(\s{1,}+)(.*))"
+
+// Or parse a much more complex shell command and return the values
+// The advantage here is that we aren't redirecting from stdout to disk
+// and then parsing the contents from disk, but are handling everything
+// in memory (at least to the best of my knowledge)
+clicmd "/bin/sh -c ps -x | grep StataMP.app", d
+-------------------------------------------------------------------------------------
+       Key                                       Value
+-------------------------------------------------------------------------------------
+       parser                                    .*
+       cleaner                                   .*
+       pgroups                                   0, 0
+       clgroups                                  0, 0
+       exec                                      /bin/sh -c ps -x | grep StataMP.app
+       line3                                      7056 ttys000 0:00.36 stata-mp
+       line2                                      6869 ttys000 0:00.08 /bin/bash --login
+       line1                                      PID TTY TIME CMD
+-------------------------------------------------------------------------------------
+	</code>
+</pre>
+					</section>
+					<section>
+						<h2><a href="https://wbuchanan.github.io/StataJSON/" target="_blank">Working with JSON Data</a></h2>
+						<div>
+							<ul>
+								<li>While <a href="https://ideas.repec.org/c/boc/bocode/s457407.html" target="_blank">insheetjson</a> and <a href="https://ideas.repec.org/c/boc/bocode/s457406.html" target="_blank">libjson</a> have provided Stata users with some capabilities to work with JSON data, <a href="https://github.com/wbuchanan/StataJSON" target="_blank">jsonio</a> provides capabilities for input and output.</li>
+								<li>The input functionality provides quite a bit of flexibility for handling arbitrarily complex JSON data.</li>
+								<li>The output functionality also provides all of the metadata that is included in many of your Stata files to make the data more useful for web-based visualizations.</li>
+							</ul>
+						</div>
+						<aside class="notes">
+							<ul>
+								<li></li>
+								<li></li>
+								<li></li>
+								<li></li>
+							</ul>
+						</aside>
+					</section>
+					<section>
+<pre style="width: 70vw;">
+	<code data-trim data-noescape style="width: 97%;">
+// Serialize a couple records as JSON objects
+. jsonio out in 73/74, what(record)
+[{
+  "mpg" : 25.0,
+  "price" : 6850.0,
+  "headroom" : 2.0,
+  "rep78" : 4.0,
+  "length" : 156.0,
+  "weight" : 1990.0,
+  "displacement" : 97.0,
+  "turn" : 36.0,
+  "trunk" : 16.0,
+  "make" : "VW Scirocco",
+  "gear_ratio" : 3.7799999713897705,
+  "foreign" : 1.0
+},
+{
+  "mpg" : 17.0,
+  "price" : 11995.0,
+  "headroom" : 2.5,
+  "rep78" : 5.0,
+  "length" : 193.0,
+  "weight" : 3170.0,
+  "displacement" : 163.0,
+  "turn" : 37.0,
+  "trunk" : 14.0,
+  "make" : "Volvo 260",
+  "gear_ratio" : 2.9800000190734863,
+  "foreign" : 1.0
+}]
+
+// There are still some challenges with data ingest, but definitey a fair
+// amount of support for reading the data into different structures for
+// further manipulation:
+
+// Load data from Google Maps Directions API and query a subset of the
+// elements to load based on attribute names
+jsonio kv, file("~/Desktop/waypointsResponse.json") nourl ///
+		elem("(legs_[0-9]/((start)|(end))_location/((lat)|(lng)))")
+
+// Describe the data set in memory
+desc
+
+Contains data
+  obs:            12
+ vars:             2
+ size:           624
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+              storage   display    value
+variable name   type    format     label      variable label
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+key             str44   %44s
+value           double  %10.0g
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Sorted by:
+     Note: Dataset has changed since last saved.
+
+// Show the data
+li, fast sep(0)
+
+     +-----------------------------------------------------------+
+     |                                          key        value |
+     |-----------------------------------------------------------|
+  1. |            /routes_1/legs_1/end_location/lat    42.378175 |
+  2. |            /routes_1/legs_1/end_location/lng   -71.060226 |
+  3. |          /routes_1/legs_1/start_location/lat    42.359824 |
+  4. |          /routes_1/legs_1/start_location/lng   -71.059812 |
+  5. |            /routes_1/legs_2/end_location/lat    42.442609 |
+  6. |            /routes_1/legs_2/end_location/lng   -71.229336 |
+  7. |          /routes_1/legs_2/start_location/lat    42.378175 |
+  8. |          /routes_1/legs_2/start_location/lng   -71.060226 |
+  9. |            /routes_1/legs_3/end_location/lat    42.460387 |
+ 10. |            /routes_1/legs_3/end_location/lng   -71.348931 |
+ 11. |          /routes_1/legs_3/start_location/lat    42.442609 |
+ 12. |          /routes_1/legs_3/start_location/lng   -71.229336 |
+     +-----------------------------------------------------------+
+
+// Clear data from memory
+clear
+
+// Although still very early in development, also some support for
+// loading the JSON data as a table (test data provided by J. Canner)
+jsonio table, nourl file(cannerTest.json)
+
+desc
+
+Contains data
+  obs:            10
+ vars:            10
+ size:       120,070
+--------------------------------------------------------------------------
+              storage   display    value
+variable name   type    format     label      variable label
+--------------------------------------------------------------------------
+asin            str2000 %2000s                asin
+helpful1        byte    %10.0g
+helpful2        byte    %10.0g
+overall         byte    %10.0g                overall
+reviewText      str2000 %2000s                reviewText
+reviewTime      str2000 %2000s                reviewTime
+reviewerID      str2000 %2000s                reviewerID
+reviewerName    str2000 %2000s                reviewerName
+summary         str2000 %2000s                summary
+unixReviewTime  long    %10.0g                unixReviewTime
+--------------------------------------------------------------------------
+Sorted by:
+     Note: Dataset has changed since last saved.
+	</code>
+</pre>
+					</section>
+				</section>
+				<section>
+					<h2>Future Directions/Opportunities</h2>
+					<section>
+						<h3>Using existing programming patterns to create a single unified interface</h3>
+						<ul>
+							<li>Refactor Stata Java Utilities library using abstract factory pattern</li>
+							<li>As new API versions are released, just need to add appropriate concrete classes.</li>
+							<li>Handling new features can be challenging and if anyone has suggestions for that I'm all ears.</li>
+						</ul>
+						<aside class="notes">
+							<ul>
+								<li>Abstract factory pattern means end users won't have to worry about handling how things would be cast</li>
+								<li>Will provide a more stable API across release versions by abstracting implementation specifics</li>
+								<li>For example, how to handle accessing characteristics when that part of the interface didn't previously exist.</li>
+								<li></li>
+							</ul>
+						</aside>
+					</section>
+					<section>
+						<h3>Java Data Base Connectivity</h3>
+						<ul>
+							<li>Could Stata move into supporting JDBC as the preferred database interface?</li>
+							<li>JDBC drivers are more readily available and <strong>are not platform dependent</strong> like ODBC drivers</li>
+							<li>Could also use <a href="http://www.h2database.com/html/main.html" target="_blank">H2</a> or other RDBMS to allow multiple datasets in memory simultaneously.</li>
+							<li>Handling of typing can be a bit challenging in this environment since not all RDBMS return the same types from their drivers.</li>
+						</ul>
+						<aside class="notes">
+							<ul>
+								<li></li>
+								<li></li>
+								<li></li>
+								<li></li>
+							</ul>
+						</aside>
+					</section>
+					<section>
+						<br><br>
+						<h3>Natural Language Processing (NLP) Integrations</h3>
+						<ul>
+							<li>There are many well-established libraries for Natural Language Processing (NLP) that are actively developed/supported: <a href="http://mallet.cs.umass.edu/" target="_blank">MALLET</a>,
+								<a href="https://opennlp.apache.org/" target="_blank">Apache OpenNLP</a>,
+								<a href="http://alias-i.com/lingpipe/index.html" target="_blank">LingPipe</a>,
+								<a href="https://stanfordnlp.github.io/CoreNLP/" target="_blank">Stanford's Core NLP</a>, and
+								<a href="http://ctakes.apache.org/" target="_blank">Apache cTAKES</a> (a tool specifically tailored to extracting data from medical records).
+							</li>
+						</ul>
+					</section>
+					<section>
+						<br><br>
+						<h3>Machine Learning Integrations</h3>
+							<ul>
+							<li>And an even wider selection of libraries for machine learning applications
+								<a href="https://github.com/apache/mahout" target="_blank">Mahout</a>,
+								<a href="https://github.com/haifengl/smile" target="_blank">SMILE</a>,
+								<a href="http://jwork.org/dmelt/" target="_blank">DataMelt</a>,
+								<a href="https://github.com/deeplearning4j/deeplearning4j" target="_blank">Deep Learning 4J</a>,
+								<a href="https://github.com/h2oai/h2o-3" target="_blank">H<sub>2</sub>O</a>,
+								<a href="https://github.com/EdwardRaff/JSAT" target="_blank">JSAT</a>,
+								<a href="http://spark.apache.org/" target="_blank">Apache Spark</a>, and
+								<a href="http://neuroph.sourceforge.net/" target="_blank">Neuroph</a>.
+
+							</li>
+							</ul>
+					</section>
+					<section>
+						<br><br>
+						<h3>Other Integrations</h3>
+						<ul>
+							<li>There are also tools for network analysis:
+								<a href="http://graphstream-project.org/" target="_blank">Graph Stream</a>,
+								<a href="https://github.com/jgrapht/jgrapht" target="_blank">jGraphT</a>,
+								<a href="https://github.com/gephi/gephi/" target="_blank">Gephi</a>, and
+								<a href="https://github.com/jgraph/jgraphx" target="_blank">jGraphX</a>.
+							</li>
+							<li>Integrations with data visualization libraries : <a href="https://github.com/PatMartin/Dex" target="_blank">Dex</a>.</li>
+							<li>Fairly robust geospatial capabilities : <a href="http://geotools.org/" target="_blank">GeoTools</a>.</li>
+							<li>And other numerical and scientific computing libraries : <a href="http://math.nist.gov/javanumerics/#libraries" target="_blank">NIST Java Numerics Libraries</a>,
+							<a href="http://ejml.org/wiki/index.php?title=Main_Page" target="_blank">Efficient Java Matrix Library</a>, and
+							<a href="https://ujmp.org/" target="_blank">Universal Java Matrix Package</a>.
+							</li>
+						</ul>
+
+						<aside class="notes">
+							<ul>
+								<li>Some of these tools even have existing performance benchmarks <a href="http://lessthanoptimal.github.io/Java-Matrix-Benchmark/" target="_blank">Java Matrix Benchmarks</a></li>
+								<li></li>
+								<li></li>
+								<li></li>
+							</ul>
+						</aside>
+					</section>
+
+
+				</section>
+				<section>
+					<h2>In Closing</h2>
+					<div>
+						<ul>
+							<li>Additional support in the Java API is awesome.</li>
+							<li>This opens a lot of new possibilities for leveraging existing technologies and not reinventing the wheel.</li>
+							<li>This may also make Stata more attractive outside of academia since it could integrate with existing technology more seamlessly.</li>
+						</ul>
+					</div>
+				</section>
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+
+			// More info https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: false,
+				history: true,
+				center: true,
+                overview: true,
+                touch: true,
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+                transitionSpeed: 'slow',
+                backgroundTransition: 'fade',
+
+				math: {
+					mathjax: 'https://cdn.mathjax.org/mathjax/latest/MathJax.js',
+					config: 'TeX-AMS_HTML-full'  // See http://docs.mathjax.org/en/latest/config-files.html
+				},
+
+				// More info https://github.com/hakimel/reveal.js#dependencies
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'plugin/math/math.js', async: true }
+				]
+			});
+
+		</script>
+        <script src="js/test.js"></script>
+	</body>
+</html>
