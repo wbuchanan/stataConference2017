@@ -108,31 +108,64 @@
 								<li>Lots of big data technologies are built on technologies running in the JVM</li>
 								<li>While Mata is a compiled language, it seems to be more similar to a DSL that compiles through C</li>
 								<li>Java started by solving a problem with different languages for consumer hardware like VCRs and Microwaves</li>
-								<li></li>
-								<li></li>
-								<li></li>
+								<li>Related to Sergios talk about big data</li>
+								<li>Related to Nicks talk about not reinventing the wheel</li>
+								<li>Can be related to reproducible work if we use Javadoc for documentation</li>
 							</ul>
 						</aside>
 					</section>
-					<section>
+					<section style="width: 60vw;">
 						<h3>Tools for working with the Java API</h3>
 						<div>
 							<ul>
 								<li><a href="https://github.com/wbuchanan/StataJavaUtilities" target="_blank">Stata Java Utilities</a>
 									<ul>
-										<li>Provides consistent interface across Stata 13/14 Java APIs</li>
-										<li>Creates representations of the dataset, metadata, and includes other utilities for handling missing values consistently</li>
-										<li>Aim is to make it easier for others to develop plugins by using higher level abstractions for the interfaces</li>
-										<li><a href="http://wbuchanan.github.io/StataJavaUtilities/" target="_blank">JavaDocs are publicly available</a></li>
+										<li>Mostly consistent interface across versions of the Java API.</li>
+										<li>Uses methods to return objects to access data with less boilerplate.</li>
+										<li>Goal: make it easier for others to develop plugins.</li>
+										<li><a href="http://wbuchanan.github.io/StataJavaUtilities/" target="_blank">Freshly updated Javadocs are available</a> </li>
+										<li>http://wbuchanan.github.io/StataJavaUtilities/</li>
+										<li>Not greatest development currently, but looking to improve</li>
 									</ul>
 								</li>
 							</ul>
 						</div>
 						<aside class="notes">
 							<ul>
+								<li>There is still a bit of need to handle some casting of types, but it is definitely more manageable now.</li>
 								<li></li>
 								<li></li>
-								<li></li>
+							</ul>
+						</aside>
+					</section>
+					<section>
+						<br><br>
+						<div>
+							<ul>
+								<li>Can easily use this library with typical Java development tools</li>
+								<li><strong>Use provided scope if using this with your own plugin!!!</strong></li>
+								<li>The snippet below shows how to include this library in your <a href="https://maven.apache.org/pom.html" target="_blank">Maven pom file</a></li>
+								<li>The Maven repository for this can be referenced with <a href="https://oss.sonatype.org/service/local/staging/deploy/maven2/" target="_blank">https://oss.sonatype.org/service/local/staging/deploy/maven2/</a></li>
+							</ul>
+						</div>
+						<div>
+							<p style="text-align: left; font-size: 26px;">
+								&lt;dependency&gt;<br>
+								&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;org.paces-consulting&lt;/groupId&gt;<br>
+								&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;stata-java&lt;/artifactId&gt;<br>
+								&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;0.0.3-SNAPSHOT&lt;/version&gt;<br>
+								&nbsp;&nbsp;&nbsp;&nbsp;&lt;type&gt;jar&lt;/type&gt;<br>
+								&nbsp;&nbsp;&nbsp;&nbsp;&lt;scope&gt;provided&lt;/scope&gt;<br>
+								&nbsp;&nbsp;&nbsp;&nbsp;&lt;optional&gt;false&lt;/optional&gt;<br>
+								&lt;/dependency&gt;<br>
+							</p>
+						</div>
+						<aside class="notes">
+							<ul>
+								<li>Provided scope with prevent classpath hell for users not working with Stata 15.</li>
+								<li>Different versions of this library cause some programs I've developed to break for users.</li>
+								<li>Also reduced the size of the plugin that you plan to distribute.</li>
+								<li>Will be submitting an SSC package for this in the near future along with updates to a few different programs I've put together</li>
 							</ul>
 						</aside>
 					</section>
@@ -172,6 +205,19 @@ StataMissings.isExtendedMissing(value);
 // items from arguments and/or macro values
 List&lt;String&gt; arguments = StringArgsToCollector.argsToCollector(String[] args);
 
+// MDArrays class provides methods to cast multidimensional arrays of Objects to primitives
+byte[][] recastedData = MDArrays.toPrimative(Byte[][] thedata);
+double[][] recastedData = MDArrays.toPrimative(Double[][] thedata);
+
+// Primative to Objects
+Byte[][] recastedData = MDArrays.toObject(byte[][] thedata);
+Double[][] recastedData = MDArrays.toPrimative(double[][] thedata);
+
+// Arrays of primatives to nested lists
+List&lt;List&lt;Byte&gt;&gt; recastedData = MDArrays.toList(byte[][] thedata);
+
+// Arrays of objects to nested lists
+List&lt;List&lt;Double&gt;&gt; recastedData = MDArrays.toList(Double[][] thedata);
 
 </code>
 						</pre>
@@ -203,7 +249,7 @@ List&lt;String&gt; arguments = StringArgsToCollector.argsToCollector(String[] ar
 						<aside class="notes">
 							<ul>
 								<li>Can think of Archetypes like a project if projects generated all of the boiler plate code for you.</li>
-								<li></li>
+								<li>Reduces boilerplate to get people started on writing code faster.</li>
 								<li></li>
 								<li></li>
 							</ul>
@@ -801,6 +847,14 @@ Sorted by:
 								<li></li>
 							</ul>
 						</aside>
+					</section>
+					<section>
+						<h3>DSLs and Documentation</h3>
+						<ul>
+							<li>Can use <a href="http://www.antlr.org/" target="_blank">ANTLR</a> to incorporate custom language parsers for end users to develop Domain Specific Languages (DSL) within Stata</li>
+							<li>Could also consider using <a href="http://www.oracle.com/technetwork/java/javase/documentation/index-jsp-135444.html" target="_blank">Javadocs</a> to create documentation for programs and make sure all program parameters are documented.</li>
+							<li>Combining these two would provide similar functionality to <a href="https://pandoc.org/" target="_blank">Pandoc</a> for translating between formats.</li>
+						</ul>
 					</section>
 					<section>
 						<br><br>
